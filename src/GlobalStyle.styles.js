@@ -3,9 +3,7 @@ import { createGlobalStyle, css } from 'styled-components';
 const FontFaces = css`
     @font-face {
         font-family: 'StratosSkyeng';
-        src:
-            local('StratosSkyeng'),
-            local('StratosSkyeng'),
+        src: local('StratosSkyeng'), local('StratosSkyeng'),
             url("..public/fonts/StratosSkyeng.woff2') format('woff2"),
             url("../fonts/StratosSkyeng.woff') format('woff");
         font-weight: 400;
@@ -35,10 +33,6 @@ a:visited {
 button {
   cursor: pointer;
 }
-
-ul li {
-  list-style: none;
-}
 ${FontFaces}
 
 html,
@@ -46,7 +40,7 @@ body {
   width: 100%;
   height: 100%;
   font-family: 'StratosSkyeng', sans-serif;
-  color: #black;
+  color: black;
   background-color: #fff;
   scroll-behavior: smooth;
 }

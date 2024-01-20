@@ -1,95 +1,123 @@
-import { Link } from 'react-router-dom';
-import * as S from './training.style';
-import {
-    ProgressBarFirst,
-    ProgressBarSecond,
-    ProgressBarThird,
-} from '../../components/ProgressBar/ProgressBar';
-import MyResults from '../../components/MyProgress/MyProgress';
+import { useEffect } from 'react';
+import ReactPlayer from 'react-player';
+import { useDispatch, useSelector } from 'react-redux';
+import { useParams } from 'react-router-dom';
+import * as S from './Training.style';
+import ProgressBarFirst from '../../components/ProgressBar/ProgressBar';
+import MyProgress from '../../components/MyProgress/MyProgress';
 import SelectingWorkout from '../../components/SelectingWorkout/SelectingWorkout';
-import AcceptProgress from '../../components/AcceptProgress/AcceptProgress';
+import Header from '../../components/UI/Header/Header';
+import { selectDataCourses } from '../../redux/slices/dataSlices';
+import {
+    selectWorkoutId,
+    setWorkoutsItem,
+} from '../../redux/slices/workoutsSlices';
+import {
+    selectorResults,
+    selectorShowModal,
+    selectorShowWorkout,
+    setShowModal,
+} from '../../redux/slices/progressSlice';
+import ButtonForFetch from '../../components/UI/ButtonForFetch/ButtonForFetch';
 
 export default function Training() {
+    const dispatch = useDispatch();
+    const params = useParams();
+    const showModal = useSelector(selectorShowModal);
+    const dataCourses = useSelector(selectDataCourses);
+    const showWorkout = useSelector(selectorShowWorkout);
+    const chosenWorkout = dataCourses?.workouts?.find(
+        (workout) => workout.id === Number(params.id),
+    );
+    const workoutId = useSelector(selectWorkoutId);
+    const resultWorkout = useSelector(selectorResults);
+    useEffect(() => {
+        dispatch(setWorkoutsItem(chosenWorkout?.workout));
+    }, [chosenWorkout]);
+
+    const changeShowModal = () => {
+        dispatch(setShowModal(true));
+    };
+
     return (
-        <S.Container>
-            <S.Header>
-                <Link to="/">
-                    <S.Logo>
-                        <img src="../img/logo.png" alt="logo" />
-                    </S.Logo>
-                </Link>
-                <S.Profile>
-                    <img src="../img/icon/Ellipse 376.svg" alt="" />
-                    <S.Name>Серге</S.Name>
-                    <S.SpanArrow>
-                        <img src="../img/icon/Arrow.svg" alt="" />
-                    </S.SpanArrow>
-                </S.Profile>
-            </S.Header>
-            <S.MainTraining>
-                <S.LessonName>Йога</S.LessonName>
-                <S.ExercisesForTheDay>
-                    Красота и здоровье / Йога на каждый день / 2 день
-                </S.ExercisesForTheDay>
-                <S.Video>
-                    <img src="../img/Group 48096501.jpg" alt="" />
-                </S.Video>
-                <S.Sections>
-                    <div>
-                        <S.ExercisesName>Упражнения</S.ExercisesName>
-                        <S.ListOfExercises>
-                            <S.Exercises>
-                                Наклон вперед (10 повторений)
-                            </S.Exercises>
-                            <S.Exercises>
-                                Наклон назад (10 повторений)
-                            </S.Exercises>
-                            <S.Exercises>
-                                Поднятие ног, согнутых в коленях (5 повторений)
-                            </S.Exercises>
-                        </S.ListOfExercises>
-                        <S.ButtonProgress type="button">
-                            <S.ButtonText>Заполнить свой прогресс</S.ButtonText>
-                        </S.ButtonProgress>
-                    </div>
-                    <S.TrainingProgress>
-                        <S.MyProgress>
-                            Мой прогресс по тренировке 2:
-                        </S.MyProgress>
-                        <S.ProgressContainer>
-                            <S.ExerciseProgress>
-                                <S.NameOfExercises>
-                                    Наклоны вперед
-                                </S.NameOfExercises>
+        <S.MainConteiner>
+            {!showWorkout && (
+                <S.Container>
+                    <Header />
+                    {workoutId && (
+                        <S.MainTraining key={workoutId.id}>
+                            <S.LessonName>
+                                {workoutId.nameTraining}
+                            </S.LessonName>
+                            <S.ExercisesForTheDay>
+                                {workoutId.nameFull}
+                            </S.ExercisesForTheDay>
+                            <S.Video>
+                                <ReactPlayer
+                                    url={workoutId.video}
+                                    width="100%"
+                                    height="100%"
+                                    controls
+                                    volume={0.8}
+                                    muted
+                                    loop
+                                />
+                            </S.Video>
+                            <S.Sections>
                                 <div>
-                                    <ProgressBarFirst percent={45} />
+                                    <S.ExercisesName>
+                                        Упражнения
+                                    </S.ExercisesName>
+                                    <S.ListOfExercises>
+                                        {workoutId?.exercises?.map(
+                                            (exercise, index) => (
+                                                <S.Exercises key={index}>
+                                                    {exercise.name}
+                                                </S.Exercises>
+                                            ),
+                                        )}
+                                    </S.ListOfExercises>
+                                    <ButtonForFetch
+                                        type="button"
+                                        onClick={changeShowModal}
+                                    >
+                                        <S.ButtonText>
+                                            Заполнить свой прогресс
+                                        </S.ButtonText>
+                                    </ButtonForFetch>
                                 </div>
-                            </S.ExerciseProgress>
-                            <S.ExerciseProgress>
-                                <S.NameOfExercises>
-                                    Наклоны назад
-                                </S.NameOfExercises>
-                                <div>
-                                    <ProgressBarSecond percent={45} />
-                                </div>
-                            </S.ExerciseProgress>
-                            <S.ExerciseProgress>
-                                <S.ProgressText>
-                                    <S.NameOfExercises>
-                                        Поднятие ног, согнутых в коленях
-                                    </S.NameOfExercises>
-                                </S.ProgressText>
-                                <div>
-                                    <ProgressBarThird percent={45} />
-                                </div>
-                            </S.ExerciseProgress>
-                        </S.ProgressContainer>
-                    </S.TrainingProgress>
-                </S.Sections>
-            </S.MainTraining>
-            <AcceptProgress />
-            <SelectingWorkout />
-            <MyResults />
-        </S.Container>
+                                <S.TrainingProgress>
+                                    <S.MyProgress>
+                                        Мой прогресс по тренировке:
+                                    </S.MyProgress>
+                                    <S.ProgressContainer>
+                                        {workoutId?.exercises?.map(
+                                            (exercise, index) => (
+                                                <S.ExerciseProgress key={index}>
+                                                    <S.NameOfExercises>
+                                                        {exercise.nameProgress}
+                                                    </S.NameOfExercises>
+                                                    <div>
+                                                        <ProgressBarFirst
+                                                            percent={
+                                                                resultWorkout[
+                                                                    index
+                                                                ]
+                                                            }
+                                                        />
+                                                    </div>
+                                                </S.ExerciseProgress>
+                                            ),
+                                        )}
+                                    </S.ProgressContainer>
+                                </S.TrainingProgress>
+                            </S.Sections>
+                        </S.MainTraining>
+                    )}
+                    {showModal && <MyProgress />}
+                </S.Container>
+            )}
+            {showWorkout && <SelectingWorkout />}
+        </S.MainConteiner>
     );
 }

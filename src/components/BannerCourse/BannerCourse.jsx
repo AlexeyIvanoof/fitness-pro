@@ -1,9 +1,9 @@
 import * as S from './BannerCourse.style';
 
-function BannerCourse() {
+function BannerCourse({ chosenCard }) {
     return (
-        <S.BlockBannerCourse>
-            <S.BannerTitle>Йога</S.BannerTitle>
+        <S.BlockBannerCourse $imageLarge={chosenCard?.imageLarge}>
+            <S.BannerTitle>{chosenCard?.textCard}</S.BannerTitle>
         </S.BlockBannerCourse>
     );
 }

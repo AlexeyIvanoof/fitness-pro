@@ -1,44 +1,68 @@
+import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import * as S from './MyProgress.style';
+import AcceptProgress from '../AcceptProgress/AcceptProgress';
+import { selectWorkoutId } from '../../redux/slices/workoutsSlices';
+import { setResultss, setShowModal } from '../../redux/slices/progressSlice';
+import MyResultContainer from '../MyResultContainer/MyResultContainer';
 
-export default function MyResults() {
+export default function MyProgress() {
+    const [isSendResults, setIsSendResults] = useState(false);
+    const [inputValue, setInputValue] = useState([]);
+    const workoutId = useSelector(selectWorkoutId);
+    const dispatch = useDispatch();
+
+    const handleInputChange = (index, e) => {
+        const newInputValue = [...inputValue];
+        newInputValue[index] = e.target.value;
+        setInputValue(newInputValue);
+    };
+
+    const handleKeyDown = (e, index) => {
+        const exercise = workoutId.exercises[index];
+        const minValue = 0;
+        const maxValue = exercise.quantity;
+        const newValue = parseInt(e.target.value + e.key, 10);
+        if (newValue < minValue || newValue > maxValue) {
+            e.preventDefault();
+        }
+    };
+
+    const handleSendResult = () => {
+        const newProgress = inputValue.map((value, index) => {
+            const exercise = workoutId.exercises[index];
+            const progress =
+                value === 0 ? 0 : Math.round((value / exercise.quantity) * 100);
+            return progress;
+        });
+        dispatch(setResultss(newProgress));
+        setInputValue([]);
+        setIsSendResults(true);
+        setTimeout(() => {
+            setIsSendResults(false);
+            dispatch(setShowModal(false));
+        }, 2000);
+    };
+
     return (
-        <S.ConteinerResults>
-            <S.MyResultsText>Мой прогресс</S.MyResultsText>
-            <S.QuestionBox>
-                <S.QuestionItems>
-                    <S.QuestionResults>
-                        Сколько раз вы сделали наклоны вперед?
-                    </S.QuestionResults>
-                    <S.AnswerResults
-                        type="text"
-                        placeholder="Введите значение"
-                    />
-                    <S.CreateLine />
-                </S.QuestionItems>
-                <S.QuestionItems>
-                    <S.QuestionResults>
-                        Сколько раз вы сделали наклоны назад?
-                    </S.QuestionResults>
-                    <S.AnswerResults
-                        type="text"
-                        placeholder="Введите значение"
-                    />
-                    <S.CreateLine />
-                </S.QuestionItems>
-                <S.QuestionItems>
-                    <S.QuestionResults>
-                        Сколько раз вы сделали поднятие ног, согнутых в коленях?
-                    </S.QuestionResults>
-                    <S.AnswerResults
-                        type="text"
-                        placeholder="Введите значение"
-                    />
-                    <S.CreateLine />
-                </S.QuestionItems>
-            </S.QuestionBox>
-            <S.ButtonResults type="button">
-                <S.ButtonResultsText>Отправить</S.ButtonResultsText>
-            </S.ButtonResults>
-        </S.ConteinerResults>
+        <S.Background>
+            <S.SelectingWorkoutBox>
+                <S.SelectingWorkoutContainer>
+                    <S.ContainerResults>
+                        {!isSendResults ? (
+                            <MyResultContainer
+                                handleSendResult={handleSendResult}
+                                handleKeyDown={handleKeyDown}
+                                handleInputChange={handleInputChange}
+                                workoutId={workoutId}
+                                inputValue={inputValue}
+                            />
+                        ) : (
+                            <AcceptProgress />
+                        )}
+                    </S.ContainerResults>
+                </S.SelectingWorkoutContainer>
+            </S.SelectingWorkoutBox>
+        </S.Background>
     );
 }
